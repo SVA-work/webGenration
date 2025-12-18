@@ -105,9 +105,6 @@ export function TemplateSelector({ templates }: TemplateSelectorProps) {
                         {(() => {
                           const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
                           const supabaseBucket = process.env.NEXT_PUBLIC_SUPABASE_BUCKET
-                          console.log(supabaseUrl)
-                          console.log(supabaseBucket)
-                          console.log(template.preview_image_path)
                           let src: string
                           if (template.preview_image_path && supabaseUrl && supabaseBucket) {
                             src = `${supabaseUrl.replace(/\/$/, '')}/storage/v1/object/public/${supabaseBucket}/${template.preview_image_path}`

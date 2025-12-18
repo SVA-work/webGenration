@@ -13,18 +13,32 @@ export async function POST(request: Request) {
     console.log('/api/generate-website: payload', { templateId, formDataPreview: JSON.stringify(formData || {}).slice(0, 2000) })
 
 
-      console.log('/api/generate-website: template not found locally, fetching from DB', templateId)
-      const supabase = await getSupabaseServerClient()
-      const { data: dbTemplate, error: templateError } = await supabase
-        .from("templates")
+    console.log('/api/generate-website: template fetching from DB', templateId)
+    const supabase = await getSupabaseServerClient()
+
+    let { data: dbTemplate, error: templateError } = await supabase
+      .from("templates")
+      .select("*")
+      .eq("id", templateId)
+      .single()
+
+    if (templateError || !dbTemplate) {
+      const result = await supabase
+        .from("ai_templates")
         .select("*")
         .eq("id", templateId)
         .single()
 
+      dbTemplate = result.data
+      templateError = result.error
+
       if (templateError || !dbTemplate) {
         throw new Error("Template not found")
       }
-      let template = dbTemplate
+    }
+
+    const template = dbTemplate
+
 
     const websiteFiles = generateWebsiteFiles(template, formData)
 

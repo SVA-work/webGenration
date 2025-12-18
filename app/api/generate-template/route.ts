@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 
 async function callOpenAIDirect(prompt: string) {
   const key = process.env.OPENAI_API_KEY
@@ -107,7 +108,25 @@ Make sure colors are professional and harmonious. Choose fonts from common web f
       config: templateConfig.config,
     }
 
-    return NextResponse.json({ template })
+    const supabase = await getSupabaseServerClient()
+    const { data: template_db, error: templateError } = await supabase
+      .from("ai_templates")
+      .insert({
+        id: template.id,
+        name: template.name,
+        description: template.description,
+        category: template.category,
+        is_ai_generated: template.is_ai_generated,
+        config: template.config,
+      })
+      .select()
+      .single()
+
+    if (templateError) {
+      console.error("Error saving website:", templateError)
+    }
+
+    return NextResponse.json({ templateId: template.id })
   } catch (error) {
     console.error('Error in generate-template:', error)
     return NextResponse.json({ error: 'Failed to generate template' }, { status: 500 })

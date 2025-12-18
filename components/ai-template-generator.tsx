@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useAppDispatch } from "@/lib/store/hooks"
-import { selectTemplateObject } from "@/lib/store/slices/templateSlice"
+import { selectTemplate } from "@/lib/store/slices/templateSlice"
 import { Sparkles, Loader2 } from "lucide-react"
 
 const industries = [
@@ -42,6 +42,7 @@ export function AITemplateGenerator() {
     style: "modern",
     additionalNotes: "",
   })
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const handleChange = (field: string, value: string) => {
@@ -79,9 +80,10 @@ export function AITemplateGenerator() {
         throw new Error("Failed to generate template")
       }
 
-      const { template } = await response.json()
+      const { templateId } = await response.json()
 
-      dispatch(selectTemplateObject(template))
+      setSelectedId(templateId)
+      dispatch(selectTemplate(templateId))
 
       router.push("/create/form")
     } catch (error) {
